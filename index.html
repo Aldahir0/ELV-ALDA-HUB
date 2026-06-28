@@ -345,6 +345,212 @@
 </head>
 <body>
 
+<script>
+// 📌 TODAS LAS FUNCIONES DEFINIDAS AL PRINCIPIO PARA QUE NO FALLE
+let servicios = [];
+let multimedia = [];
+
+function mostrarPagina(id) {
+    document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+    window.scrollTo({top:0, behavior:'smooth'});
+    history.pushState({pagina: id}, "", `#${id}`);
+}
+
+function iniciarSesion() {
+    const usuarioIngresado = document.getElementById('usuario').value.trim();
+    const claveIngresada = document.getElementById('clave').value.trim();
+    if (usuarioIngresado === "Aldahir46" && claveIngresada === "Elalda1234@") {
+        document.getElementById("btnIngreso").style.display = "none";
+        document.getElementById("btnSalir").style.display = "inline-block";
+        mostrarPagina("admin");
+        cargarServiciosAdmin();
+    } else {
+        alert("❌ Usuario o contraseña incorrectos");
+    }
+}
+
+const infoVentajas = {
+    precios: { titulo: "💰 Precios Accesibles", texto: "Tarifas competitivas sin cargos ocultos ni sorpresas." },
+    activacion: { titulo: "⚡ Activación Rápida", texto: "Servicio listo en menos de 15 minutos tras confirmar el pago." },
+    soporte: { titulo: "📞 Soporte Directo", texto: "Atención personalizada todos los días de 8:00 a 22:00." },
+    garantia: { titulo: "🛡️ Garantía Total", texto: "Si hay fallas, lo solucionamos o cambiamos sin costo extra." }
+};
+
+function abrirModal(tipo) {
+    document.getElementById('tituloModal').textContent = infoVentajas[tipo].titulo;
+    document.getElementById('textoModal').textContent = infoVentajas[tipo].texto;
+    document.getElementById('modalInfo').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modalInfo').style.display = 'none';
+}
+
+function cambiarPestaña(id) {
+    document.querySelectorAll('.pestaña').forEach(p => p.classList.remove('activa'));
+    document.querySelectorAll('.contenido-pestaña').forEach(c => c.classList.remove('activo'));
+    document.querySelector(`.pestaña[onclick="cambiarPestaña('${id}')"]`).classList.add('activa');
+    document.getElementById(id).classList.add('activo');
+}
+
+function mostrarVistaPrevia() {
+    const archivo = document.getElementById('foto').files[0];
+    if (archivo) {
+        const lector = new FileReader();
+        lector.onload = e => {
+            const img = document.getElementById('vistaPrevia');
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        lector.readAsDataURL(archivo);
+    }
+}
+
+function guardarFoto() {
+    const archivo = document.getElementById('foto').files[0];
+    if (!archivo) return alert("⚠️ Selecciona una imagen primero");
+    const lector = new FileReader();
+    lector.onload = e => {
+        multimedia.push({ id: Date.now(), tipo: 'imagen', fuente: e.target.result, titulo: document.getElementById('tituloVideo').value.trim() || 'Imagen' });
+        actualizarGaleria();
+        limpiarCamposMultimedia();
+        alert("✅ Imagen guardada");
+    };
+    lector.readAsDataURL(archivo);
+}
+
+function guardarVideo() {
+    const titulo = document.getElementById('tituloVideo').value.trim();
+    const enlace = document.getElementById('enlaceVideo').value.trim();
+    if (!titulo || !enlace) return alert("⚠️ Completa título y enlace");
+    let enlaceFinal = enlace;
+    if (enlace.includes('watch?v=')) enlaceFinal = enlace.replace('watch?v=', 'embed/');
+    if (enlace.includes('youtu.be/')) enlaceFinal = enlace.replace('youtu.be/', 'youtube.com/embed/');
+    multimedia.push({ id: Date.now(), tipo: 'video', fuente: enlaceFinal, titulo });
+    actualizarGaleria();
+    limpiarCamposMultimedia();
+    alert("✅ Video guardado");
+}
+
+function actualizarGaleria() {
+    const contenedor = document.getElementById('galeriaInicio');
+    if (!contenedor) return;
+    if (multimedia.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">Aquí aparecerán tus fotos y videos</div>`;
+        return;
+    }
+    contenedor.innerHTML = '';
+    multimedia.forEach(item => {
+        if (item.tipo === 'imagen') {
+            contenedor.innerHTML += `<div class="tarjeta"><img src="${item.fuente}" alt="${item.titulo}"><h3>${item.titulo}</h3><button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button></div>`;
+        } else {
+            contenedor.innerHTML += `<div class="tarjeta"><iframe src="${item.fuente}" allowfullscreen></iframe><h3>${item.titulo}</h3><button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button></div>`;
+        }
+    });
+}
+
+function eliminarMultimedia(id) {
+    if (confirm("¿Eliminar este elemento?")) {
+        multimedia = multimedia.filter(i => i.id !== id);
+        actualizarGaleria();
+    }
+}
+
+function limpiarCamposMultimedia() {
+    document.getElementById('foto').value = '';
+    document.getElementById('vistaPrevia').style.display = 'none';
+    document.getElementById('tituloVideo').value = '';
+    document.getElementById('enlaceVideo').value = '';
+}
+
+function cargarServicios() {
+    const contenedor = document.getElementById('listaServicios');
+    if (!contenedor) return;
+    if (servicios.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">No hay servicios agregados todavía</div>`;
+        return;
+    }
+    contenedor.innerHTML = '';
+    servicios.forEach(s => {
+        contenedor.innerHTML += `<div class="tarjeta"><h3>${s.nombre}</h3><p>${s.descripcion}</p><p style="font-size:1.4rem; color:var(--azul-brillante); font-weight:bold;">${s.precio}</p><ul style="list-style:none; padding-left:1rem;">${s.beneficios.map(b => `<li>✅ ${b}</li>`).join('')}</ul><button class="btn" onclick="comprar(${s.id})">Comprar Ahora</button></div>`;
+    });
+}
+
+function cargarServiciosAdmin() {
+    const contenedor = document.getElementById('listaAdmin');
+    if (!contenedor) return;
+    if (servicios.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">No hay servicios guardados todavía</div>`;
+        return;
+    }
+    contenedor.innerHTML = '';
+    servicios.forEach(s => {
+        contenedor.innerHTML += `<div class="tarjeta"><h4>${s.nombre}</h4><p>${s.descripcion}</p><p>Precio: <strong>${s.precio}</strong></p><button class="btn" onclick="eliminarServicio(${s.id})" style="background:#e53e3e; width:100%;">Eliminar</button></div>`;
+    });
+}
+
+function comprar(id) {
+    const s = servicios.find(i => i.id === id);
+    if (!s) return;
+    const texto = `Hola, quiero comprar: ${s.nombre} - Precio: ${s.precio}`;
+    window.open(`https://wa.me/593996563465?text=${encodeURIComponent(texto)}`, '_blank');
+}
+
+function cerrarSesion() {
+    document.getElementById("btnIngreso").style.display = "inline-block";
+    document.getElementById("btnSalir").style.display = "none";
+    mostrarPagina("inicio");
+    document.getElementById('usuario').value = '';
+    document.getElementById('clave').value = '';
+    document.getElementById('nombre').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('beneficios').value = '';
+    limpiarCamposMultimedia();
+}
+
+function guardarServicio() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const descripcion = document.getElementById('descripcion').value.trim();
+    const precio = document.getElementById('precio').value.trim();
+    const beneficios = document.getElementById('beneficios').value.split(',').map(b => b.trim()).filter(b => b);
+    if (!nombre || !precio) return alert("⚠️ Completa al menos nombre y precio");
+    servicios.push({ id: Date.now(), nombre, descripcion, precio, beneficios: beneficios.length ? beneficios : ["Sin especificar"] });
+    cargarServicios();
+    cargarServiciosAdmin();
+    document.getElementById('nombre').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('beneficios').value = '';
+    alert("✅ Servicio guardado");
+}
+
+function eliminarServicio(id) {
+    if (confirm("¿Eliminar este servicio?")) {
+        servicios = servicios.filter(i => i.id !== id);
+        cargarServicios();
+        cargarServiciosAdmin();
+    }
+}
+
+window.onload = () => {
+    cargarServicios();
+    actualizarGaleria();
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) mostrarPagina(hash);
+};
+
+window.onpopstate = e => {
+    if (e.state && e.state.pagina) mostrarPagina(e.state.pagina);
+};
+
+window.onclick = e => {
+    const m = document.getElementById('modalInfo');
+    if (e.target === m) cerrarModal();
+};
+</script>
+
 <nav class="nav">
     <div class="logo">EL ALDA STREAMING HUB</div>
     <div class="menu">
@@ -487,271 +693,6 @@
 </div>
 
 <a href="https://wa.me/593996563465" class="whatsapp" target="_blank">💬</a>
-
-<script>
-let servicios = [];
-let multimedia = [];
-
-// Acceso integrado, sin bloque visible separado
-function iniciarSesion() {
-    const usuarioIngresado = document.getElementById('usuario').value.trim();
-    const claveIngresada = document.getElementById('clave').value.trim();
-
-    if (usuarioIngresado === "Aldahir46" && claveIngresada === "Elalda1234@") {
-        document.getElementById("btnIngreso").style.display = "none";
-        document.getElementById("btnSalir").style.display = "inline-block";
-        mostrarPagina("admin");
-        cargarServiciosAdmin();
-    } else {
-        alert("❌ Usuario o contraseña incorrectos");
-    }
-}
-
-const infoVentajas = {
-    precios: {
-        titulo: "💰 Precios Accesibles",
-        texto: "Ofrecemos tarifas muy competitivas, sin cargos ocultos ni sorpresas."
-    },
-    activacion: {
-        titulo: "⚡ Activación Rápida",
-        texto: "El servicio queda activo en 5 a 15 minutos tras confirmar tu pago."
-    },
-    soporte: {
-        titulo: "📞 Soporte Directo",
-        texto: "Atención personalizada todos los días de 8:00 a 22:00."
-    },
-    garantia: {
-        titulo: "🛡️ Garantía Total",
-        texto: "Garantía de funcionamiento, solucionamos cualquier falla sin costo."
-    }
-};
-
-function cambiarPestaña(id) {
-    document.querySelectorAll('.pestaña').forEach(p => p.classList.remove('activa'));
-    document.querySelectorAll('.contenido-pestaña').forEach(c => c.classList.remove('activo'));
-    document.querySelector(`.pestaña[onclick="cambiarPestaña('${id}')"]`).classList.add('activa');
-    document.getElementById(id).classList.add('activo');
-}
-
-function mostrarVistaPrevia() {
-    const archivo = document.getElementById('foto').files[0];
-    if (archivo) {
-        const lector = new FileReader();
-        lector.onload = function(e) {
-            const img = document.getElementById('vistaPrevia');
-            img.src = e.target.result;
-            img.style.display = 'block';
-        };
-        lector.readAsDataURL(archivo);
-    }
-}
-
-function guardarFoto() {
-    const archivo = document.getElementById('foto').files[0];
-    if (!archivo) return alert("⚠️ Selecciona una imagen primero");
-
-    const lector = new FileReader();
-    lector.onload = function(e) {
-        multimedia.push({
-            id: Date.now(),
-            tipo: 'imagen',
-            fuente: e.target.result,
-            titulo: document.getElementById('tituloVideo').value.trim() || 'Imagen'
-        });
-        actualizarGaleria();
-        limpiarCamposMultimedia();
-        alert("✅ Imagen guardada y visible en Inicio");
-    };
-    lector.readAsDataURL(archivo);
-}
-
-function guardarVideo() {
-    const titulo = document.getElementById('tituloVideo').value.trim();
-    const enlace = document.getElementById('enlaceVideo').value.trim();
-    if (!titulo || !enlace) return alert("⚠️ Completa título y enlace");
-
-    let enlaceFinal = enlace;
-    if (enlace.includes('watch?v=')) enlaceFinal = enlace.replace('watch?v=', 'embed/');
-    if (enlace.includes('youtu.be/')) enlaceFinal = enlace.replace('youtu.be/', 'youtube.com/embed/');
-
-    multimedia.push({
-        id: Date.now(),
-        tipo: 'video',
-        fuente: enlaceFinal,
-        titulo: titulo
-    });
-    actualizarGaleria();
-    limpiarCamposMultimedia();
-    alert("✅ Video guardado y visible en Inicio");
-}
-
-function actualizarGaleria() {
-    const contenedor = document.getElementById('galeriaInicio');
-    if (!contenedor) return;
-
-    if (multimedia.length === 0) {
-        contenedor.innerHTML = `<div class="vacio">Aquí aparecerán tus fotos y videos cuando los agregues desde el panel</div>`;
-        return;
-    }
-
-    contenedor.innerHTML = '';
-    multimedia.forEach(item => {
-        if (item.tipo === 'imagen') {
-            contenedor.innerHTML += `
-                <div class="tarjeta">
-                    <img src="${item.fuente}" alt="${item.titulo}">
-                    <h3>${item.titulo}</h3>
-                    <button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
-                </div>`;
-        } else {
-            contenedor.innerHTML += `
-                <div class="tarjeta">
-                    <iframe src="${item.fuente}" allowfullscreen></iframe>
-                    <h3>${item.titulo}</h3>
-                    <button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
-                </div>`;
-        }
-    });
-}
-
-function eliminarMultimedia(id) {
-    if (confirm("¿Eliminar este elemento?")) {
-        multimedia = multimedia.filter(i => i.id !== id);
-        actualizarGaleria();
-    }
-}
-
-function limpiarCamposMultimedia() {
-    document.getElementById('foto').value = '';
-    document.getElementById('vistaPrevia').style.display = 'none';
-    document.getElementById('tituloVideo').value = '';
-    document.getElementById('enlaceVideo').value = '';
-}
-
-function mostrarPagina(id) {
-    document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
-    document.getElementById(id).classList.add('activa');
-    window.scrollTo({top:0, behavior:'smooth'});
-}
-
-function abrirModal(tipo) {
-    document.getElementById('tituloModal').textContent = infoVentajas[tipo].titulo;
-    document.getElementById('textoModal').textContent = infoVentajas[tipo].texto;
-    document.getElementById('modalInfo').style.display = 'flex';
-}
-
-function cerrarModal() {
-    document.getElementById('modalInfo').style.display = 'none';
-}
-
-function cargarServicios() {
-    const contenedor = document.getElementById('listaServicios');
-    if (!contenedor) return;
-
-    if (servicios.length === 0) {
-        contenedor.innerHTML = `<div class="vacio">No hay servicios agregados todavía</div>`;
-        return;
-    }
-
-    contenedor.innerHTML = '';
-    servicios.forEach(s => {
-        contenedor.innerHTML += `
-            <div class="tarjeta">
-                <h3>${s.nombre}</h3>
-                <p>${s.descripcion}</p>
-                <p style="font-size:1.4rem; color:var(--azul-brillante); font-weight:bold;">${s.precio}</p>
-                <ul style="list-style:none; text-align:left; padding-left:1rem;">
-                    ${s.beneficios.map(b => `<li>✅ ${b}</li>`).join('')}
-                </ul>
-                <button class="btn" onclick="comprar(${s.id})">Comprar Ahora</button>
-            </div>`;
-    });
-}
-
-function cargarServiciosAdmin() {
-    const contenedor = document.getElementById('listaAdmin');
-    if (!contenedor) return;
-
-    if (servicios.length === 0) {
-        contenedor.innerHTML = `<div class="vacio">No hay servicios guardados todavía</div>`;
-        return;
-    }
-
-    contenedor.innerHTML = '';
-    servicios.forEach(s => {
-        contenedor.innerHTML += `
-            <div class="tarjeta">
-                <h4>${s.nombre}</h4>
-                <p>${s.descripcion}</p>
-                <p>Precio: <strong>${s.precio}</strong></p>
-                <button class="btn" onclick="eliminarServicio(${s.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
-            </div>`;
-    });
-}
-
-function comprar(id) {
-    const s = servicios.find(i => i.id === id);
-    if (!s) return;
-    const texto = `Hola, quiero comprar: ${s.nombre} - Precio: ${s.precio}`;
-    window.open(`https://wa.me/593996563465?text=${encodeURIComponent(texto)}`, '_blank');
-}
-
-function cerrarSesion() {
-    document.getElementById("btnIngreso").style.display = "inline-block";
-    document.getElementById("btnSalir").style.display = "none";
-    mostrarPagina("inicio");
-    document.getElementById('usuario').value = '';
-    document.getElementById('clave').value = '';
-    document.getElementById('nombre').value = '';
-    document.getElementById('descripcion').value = '';
-    document.getElementById('precio').value = '';
-    document.getElementById('beneficios').value = '';
-    limpiarCamposMultimedia();
-}
-
-function guardarServicio() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const descripcion = document.getElementById('descripcion').value.trim();
-    const precio = document.getElementById('precio').value.trim();
-    const beneficios = document.getElementById('beneficios').value.split(',').map(b => b.trim()).filter(b => b);
-
-    if (!nombre || !precio) return alert("⚠️ Completa al menos nombre y precio");
-
-    servicios.push({
-        id: Date.now(),
-        nombre,
-        descripcion,
-        precio,
-        beneficios: beneficios.length ? beneficios : ["Sin especificar"]
-    });
-
-    cargarServicios();
-    cargarServiciosAdmin();
-    document.getElementById('nombre').value = '';
-    document.getElementById('descripcion').value = '';
-    document.getElementById('precio').value = '';
-    document.getElementById('beneficios').value = '';
-    alert("✅ Servicio guardado");
-}
-
-function eliminarServicio(id) {
-    if (confirm("¿Eliminar este servicio?")) {
-        servicios = servicios.filter(i => i.id !== id);
-        cargarServicios();
-        cargarServiciosAdmin();
-    }
-}
-
-window.onload = () => {
-    cargarServicios();
-    actualizarGaleria();
-};
-
-window.onclick = e => {
-    const m = document.getElementById('modalInfo');
-    if (e.target === m) cerrarModal();
-};
-</script>
 
 </body>
 </html>
