@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EL ALDA STREAMING HUB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --negro: #050510;
+            --azul-brillante: #00CCFF;
+            --morado-intenso: #B000FF;
+            --rosa-neon: #FF2E96;
+            --verde-activo: #00FF94;
+            --amarillo: #FFDD00;
+            --blanco: #FFFFFF;
+            --gris-suave: rgba(255,255,255,0.08);
+            --gris-fuerte: rgba(255,255,255,0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, #050510 0%, #100520 100%);
+            color: var(--blanco);
+            line-height: 1.6;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, var(--azul-brillante), var(--rosa-neon), var(--amarillo)) 1;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--azul-brillante), var(--rosa-neon), var(--amarillo));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .menu a {
+            color: var(--blanco);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu a:hover {
+            color: var(--amarillo);
+            text-shadow: 0 0 12px var(--rosa-neon);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            padding: 0.7rem 1.4rem;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--azul-brillante), var(--morado-intenso));
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+            transition: all 0.15s ease;
+        }
+
+        .btn:active, .tarjeta:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: 0 0 8px rgba(255, 46, 150, 0.5);
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, var(--rosa-neon), var(--morado-intenso));
+            box-shadow: 0 0 20px rgba(255, 46, 150, 0.5);
+        }
+
+        .banner {
+            text-align: center;
+            padding: 4rem 5%;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .banner h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, var(--azul-brillante), var(--rosa-neon), var(--amarillo));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .banner p {
+            font-size: 1.3rem;
+            max-width: 750px;
+            color: #e0e0ff;
+        }
+
+        .seccion {
+            padding: 3rem 5%;
+        }
+
+        .seccion h2 {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--verde-activo), var(--azul-brillante));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 2rem;
+        }
+
+        .tarjeta {
+            background: var(--gris-suave);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--gris-fuerte);
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .tarjeta:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0, 204, 255, 0.25);
+            border-color: var(--azul-brillante);
+        }
+
+        .tarjeta h3 {
+            color: var(--amarillo);
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+        }
+
+        .tarjeta img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .tarjeta iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: none;
+        }
+
+        .whatsapp {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            width: 70px;
+            height: 70px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.5);
+            z-index: 999;
+            transition: all 0.2s;
+        }
+
+        .whatsapp:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+        }
+
+        .login-box, .panel {
+            max-width: 750px;
+            margin: 4rem auto;
+            padding: 2.5rem;
+            background: var(--gris-suave);
+            border-radius: 16px;
+            border: 1px solid var(--gris-fuerte);
+            box-shadow: 0 0 25px rgba(0, 204, 255, 0.15);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            box-shadow: 0 0 0 2px var(--rosa-neon);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .pagina { display: none; }
+        .pagina.activa { display: block; animation: aparecer 0.3s ease; }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-contenido {
+            background: linear-gradient(145deg, #101025, #080818);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 2px solid var(--azul-brillante);
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.3);
+        }
+
+        .cerrar-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--rosa-neon);
+            transition: 0.2s;
+        }
+
+        .cerrar-modal:hover {
+            transform: rotate(90deg);
+            color: var(--amarillo);
+        }
+
+        .pestañas {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .pestaña {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .pestaña.activa {
+            background: linear-gradient(90deg, var(--azul-brillante), var(--morado-intenso));
+            color: white;
+        }
+
+        .contenido-pestaña {
+            display: none;
+        }
+
+        .contenido-pestaña.activo {
+            display: block;
+        }
+
+        .vista-previa {
+            max-width: 100%;
+            max-height: 250px;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--gris-fuerte);
+        }
+
+        .vacio {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255,255,255,0.5);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                text-align: center;
+            }
+            .menu a {
+                margin: 0 0.7rem;
+                font-size: 1rem;
+            }
+            .banner h1 {
+                font-size: 2rem;
+            }
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="logo">EL ALDA STREAMING HUB</div>
+    <div class="menu">
+        <a onclick="mostrarPagina('inicio')">Inicio</a>
+        <a onclick="mostrarPagina('catalogo')">Catálogo</a>
+        <a onclick="mostrarPagina('contacto')">Contacto</a>
+        <a onclick="mostrarPagina('login')" id="btnIngreso">Ingresar</a>
+        <a onclick="cerrarSesion()" id="btnSalir" style="display:none;">Salir</a>
+    </div>
+</nav>
+
+<div class="pagina activa" id="inicio">
+    <section class="banner">
+        <h1>EL ALDA STREAMING HUB</h1>
+        <p>El mejor entretenimiento al alcance de tu mano, con precios bajos y servicio garantizado</p>
+        <a onclick="mostrarPagina('catalogo')" class="btn">Ver Servicios</a>
+    </section>
+
+    <section class="seccion">
+        <h2>Nuestras Ventajas</h2>
+        <div class="grid">
+            <div class="tarjeta" onclick="abrirModal('precios')">
+                <h3>💰 Precios Accesibles</h3>
+                <p>Tarifas competitivas sin cargos ocultos ni sorpresas.</p>
+            </div>
+            <div class="tarjeta" onclick="abrirModal('activacion')">
+                <h3>⚡ Activación Rápida</h3>
+                <p>Servicio listo en menos de 15 minutos tras confirmar el pago.</p>
+            </div>
+            <div class="tarjeta" onclick="abrirModal('soporte')">
+                <h3>📞 Soporte Directo</h3>
+                <p>Atención personalizada todos los días de 8:00 a 22:00.</p>
+            </div>
+            <div class="tarjeta" onclick="abrirModal('garantia')">
+                <h3>🛡️ Garantía Total</h3>
+                <p>Si hay fallas, lo solucionamos o cambiamos sin costo extra.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="seccion">
+        <h2>Galería y Contenido</h2>
+        <div class="grid" id="galeriaInicio">
+            <div class="vacio">Aquí aparecerán tus fotos y videos cuando los agregues desde el panel de administración</div>
+        </div>
+    </section>
+</div>
+
+<div class="pagina" id="catalogo">
+    <section class="seccion">
+        <h2>Nuestros Servicios</h2>
+        <div class="grid" id="listaServicios">
+            <div class="vacio">No hay servicios agregados todavía</div>
+        </div>
+    </section>
+</div>
+
+<div class="pagina" id="contacto">
+    <section class="seccion">
+        <h2>Contáctanos</h2>
+        <div class="tarjeta" style="max-width:500px; margin:0 auto;">
+            <p>📱 WhatsApp: <strong>0996563465</strong></p>
+            <p>📧 Correo: <strong>ventas@elaldastreaming.com</strong></p>
+            <p>📍 Quito, Ecuador</p>
+            <br>
+            <a href="https://wa.me/593996563465?text=Hola, quiero información sobre los servicios" class="btn" target="_blank">Escribir ahora</a>
+        </div>
+    </section>
+</div>
+
+<div class="pagina" id="login">
+    <section class="seccion">
+        <div class="login-box">
+            <h2 style="text-align:center; margin-bottom:1.5rem; color:var(--azul-brillante);">Acceso Administrador</h2>
+            <input type="text" id="usuario" placeholder="Usuario" value="">
+            <input type="password" id="clave" placeholder="Contraseña" value="">
+            <button class="btn" onclick="iniciarSesion()" style="width:100%; font-size:1.1rem;">Ingresar</button>
+        </div>
+    </section>
+</div>
+
+<div class="pagina" id="admin">
+    <section class="seccion">
+        <div class="panel">
+            <h2 style="text-align:center; color:var(--verde-activo); margin-bottom:2rem;">Gestión del Sitio</h2>
+
+            <div class="pestañas">
+                <div class="pestaña activa" onclick="cambiarPestaña('servicios')">📋 Servicios</div>
+                <div class="pestaña" onclick="cambiarPestaña('multimedia')">📸 Fotos y Videos</div>
+            </div>
+
+            <div class="contenido-pestaña activo" id="servicios">
+                <h3 style="color: var(--azul-brillante); margin-bottom: 1rem;">Agregar nuevo servicio</h3>
+                <input type="text" id="nombre" placeholder="Nombre del servicio" value="">
+                <textarea id="descripcion" placeholder="Descripción detallada" rows="3"></textarea>
+                <input type="text" id="precio" placeholder="Precio (ej: 8.99 USD)" value="">
+                <input type="text" id="beneficios" placeholder="Beneficios separados por coma" value="">
+                <button class="btn" onclick="guardarServicio()" style="width:100%; margin-top:0.5rem;">Guardar Servicio</button>
+                
+                <h3 style="margin-top:2.5rem; color: var(--azul-brillante); text-align:center;">Servicios agregados</h3>
+                <div class="grid" id="listaAdmin">
+                    <div class="vacio">No hay servicios guardados todavía</div>
+                </div>
+            </div>
+
+            <div class="contenido-pestaña" id="multimedia">
+                <h3 style="color: var(--rosa-neon); margin-bottom: 1.5rem;">Subir fotos y videos</h3>
+
+                <div style="margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <h4 style="margin-bottom: 1rem; color: var(--amarillo);">📸 Subir imagen</h4>
+                    <input type="file" id="foto" accept="image/*" onchange="mostrarVistaPrevia()">
+                    <img id="vistaPrevia" class="vista-previa" style="display:none;" alt="Vista previa">
+                    <button class="btn" onclick="guardarFoto()" style="width:100%; margin-top:1rem;">Guardar Imagen</button>
+                </div>
+
+                <div style="padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <h4 style="margin-bottom: 1rem; color: var(--amarillo);">🎬 Agregar video</h4>
+                    <input type="text" id="tituloVideo" placeholder="Título del video" value="">
+                    <input type="url" id="enlaceVideo" placeholder="Enlace del video (YouTube, etc.)" value="">
+                    <button class="btn" onclick="guardarVideo()" style="width:100%; margin-top:0.5rem;">Guardar Video</button>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top:3rem;">
+                <button class="btn" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div id="modalInfo" class="modal">
+    <div class="modal-contenido">
+        <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
+        <h3 id="tituloModal" style="color: var(--amarillo); margin-bottom: 1.2rem; font-size:1.5rem;"></h3>
+        <p id="textoModal" style="font-size:1.1rem; line-height:1.7;"></p>
+        <div style="margin-top: 2rem; text-align: right;">
+            <button class="btn" onclick="cerrarModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<a href="https://wa.me/593996563465" class="whatsapp" target="_blank">💬</a>
+
+<script>
+let servicios = [];
+let multimedia = [];
+
+// Acceso integrado, sin bloque visible separado
+function iniciarSesion() {
+    const usuarioIngresado = document.getElementById('usuario').value.trim();
+    const claveIngresada = document.getElementById('clave').value.trim();
+
+    if (usuarioIngresado === "Aldahir46" && claveIngresada === "Elalda1234@") {
+        document.getElementById("btnIngreso").style.display = "none";
+        document.getElementById("btnSalir").style.display = "inline-block";
+        mostrarPagina("admin");
+        cargarServiciosAdmin();
+    } else {
+        alert("❌ Usuario o contraseña incorrectos");
+    }
+}
+
+const infoVentajas = {
+    precios: {
+        titulo: "💰 Precios Accesibles",
+        texto: "Ofrecemos tarifas muy competitivas, sin cargos ocultos ni sorpresas."
+    },
+    activacion: {
+        titulo: "⚡ Activación Rápida",
+        texto: "El servicio queda activo en 5 a 15 minutos tras confirmar tu pago."
+    },
+    soporte: {
+        titulo: "📞 Soporte Directo",
+        texto: "Atención personalizada todos los días de 8:00 a 22:00."
+    },
+    garantia: {
+        titulo: "🛡️ Garantía Total",
+        texto: "Garantía de funcionamiento, solucionamos cualquier falla sin costo."
+    }
+};
+
+function cambiarPestaña(id) {
+    document.querySelectorAll('.pestaña').forEach(p => p.classList.remove('activa'));
+    document.querySelectorAll('.contenido-pestaña').forEach(c => c.classList.remove('activo'));
+    document.querySelector(`.pestaña[onclick="cambiarPestaña('${id}')"]`).classList.add('activa');
+    document.getElementById(id).classList.add('activo');
+}
+
+function mostrarVistaPrevia() {
+    const archivo = document.getElementById('foto').files[0];
+    if (archivo) {
+        const lector = new FileReader();
+        lector.onload = function(e) {
+            const img = document.getElementById('vistaPrevia');
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        lector.readAsDataURL(archivo);
+    }
+}
+
+function guardarFoto() {
+    const archivo = document.getElementById('foto').files[0];
+    if (!archivo) return alert("⚠️ Selecciona una imagen primero");
+
+    const lector = new FileReader();
+    lector.onload = function(e) {
+        multimedia.push({
+            id: Date.now(),
+            tipo: 'imagen',
+            fuente: e.target.result,
+            titulo: document.getElementById('tituloVideo').value.trim() || 'Imagen'
+        });
+        actualizarGaleria();
+        limpiarCamposMultimedia();
+        alert("✅ Imagen guardada y visible en Inicio");
+    };
+    lector.readAsDataURL(archivo);
+}
+
+function guardarVideo() {
+    const titulo = document.getElementById('tituloVideo').value.trim();
+    const enlace = document.getElementById('enlaceVideo').value.trim();
+    if (!titulo || !enlace) return alert("⚠️ Completa título y enlace");
+
+    let enlaceFinal = enlace;
+    if (enlace.includes('watch?v=')) enlaceFinal = enlace.replace('watch?v=', 'embed/');
+    if (enlace.includes('youtu.be/')) enlaceFinal = enlace.replace('youtu.be/', 'youtube.com/embed/');
+
+    multimedia.push({
+        id: Date.now(),
+        tipo: 'video',
+        fuente: enlaceFinal,
+        titulo: titulo
+    });
+    actualizarGaleria();
+    limpiarCamposMultimedia();
+    alert("✅ Video guardado y visible en Inicio");
+}
+
+function actualizarGaleria() {
+    const contenedor = document.getElementById('galeriaInicio');
+    if (!contenedor) return;
+
+    if (multimedia.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">Aquí aparecerán tus fotos y videos cuando los agregues desde el panel</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = '';
+    multimedia.forEach(item => {
+        if (item.tipo === 'imagen') {
+            contenedor.innerHTML += `
+                <div class="tarjeta">
+                    <img src="${item.fuente}" alt="${item.titulo}">
+                    <h3>${item.titulo}</h3>
+                    <button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
+                </div>`;
+        } else {
+            contenedor.innerHTML += `
+                <div class="tarjeta">
+                    <iframe src="${item.fuente}" allowfullscreen></iframe>
+                    <h3>${item.titulo}</h3>
+                    <button class="btn" onclick="eliminarMultimedia(${item.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
+                </div>`;
+        }
+    });
+}
+
+function eliminarMultimedia(id) {
+    if (confirm("¿Eliminar este elemento?")) {
+        multimedia = multimedia.filter(i => i.id !== id);
+        actualizarGaleria();
+    }
+}
+
+function limpiarCamposMultimedia() {
+    document.getElementById('foto').value = '';
+    document.getElementById('vistaPrevia').style.display = 'none';
+    document.getElementById('tituloVideo').value = '';
+    document.getElementById('enlaceVideo').value = '';
+}
+
+function mostrarPagina(id) {
+    document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function abrirModal(tipo) {
+    document.getElementById('tituloModal').textContent = infoVentajas[tipo].titulo;
+    document.getElementById('textoModal').textContent = infoVentajas[tipo].texto;
+    document.getElementById('modalInfo').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modalInfo').style.display = 'none';
+}
+
+function cargarServicios() {
+    const contenedor = document.getElementById('listaServicios');
+    if (!contenedor) return;
+
+    if (servicios.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">No hay servicios agregados todavía</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = '';
+    servicios.forEach(s => {
+        contenedor.innerHTML += `
+            <div class="tarjeta">
+                <h3>${s.nombre}</h3>
+                <p>${s.descripcion}</p>
+                <p style="font-size:1.4rem; color:var(--azul-brillante); font-weight:bold;">${s.precio}</p>
+                <ul style="list-style:none; text-align:left; padding-left:1rem;">
+                    ${s.beneficios.map(b => `<li>✅ ${b}</li>`).join('')}
+                </ul>
+                <button class="btn" onclick="comprar(${s.id})">Comprar Ahora</button>
+            </div>`;
+    });
+}
+
+function cargarServiciosAdmin() {
+    const contenedor = document.getElementById('listaAdmin');
+    if (!contenedor) return;
+
+    if (servicios.length === 0) {
+        contenedor.innerHTML = `<div class="vacio">No hay servicios guardados todavía</div>`;
+        return;
+    }
+
+    contenedor.innerHTML = '';
+    servicios.forEach(s => {
+        contenedor.innerHTML += `
+            <div class="tarjeta">
+                <h4>${s.nombre}</h4>
+                <p>${s.descripcion}</p>
+                <p>Precio: <strong>${s.precio}</strong></p>
+                <button class="btn" onclick="eliminarServicio(${s.id})" style="background:#e53e3e; width:100%;">Eliminar</button>
+            </div>`;
+    });
+}
+
+function comprar(id) {
+    const s = servicios.find(i => i.id === id);
+    if (!s) return;
+    const texto = `Hola, quiero comprar: ${s.nombre} - Precio: ${s.precio}`;
+    window.open(`https://wa.me/593996563465?text=${encodeURIComponent(texto)}`, '_blank');
+}
+
+function cerrarSesion() {
+    document.getElementById("btnIngreso").style.display = "inline-block";
+    document.getElementById("btnSalir").style.display = "none";
+    mostrarPagina("inicio");
+    document.getElementById('usuario').value = '';
+    document.getElementById('clave').value = '';
+    document.getElementById('nombre').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('beneficios').value = '';
+    limpiarCamposMultimedia();
+}
+
+function guardarServicio() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const descripcion = document.getElementById('descripcion').value.trim();
+    const precio = document.getElementById('precio').value.trim();
+    const beneficios = document.getElementById('beneficios').value.split(',').map(b => b.trim()).filter(b => b);
+
+    if (!nombre || !precio) return alert("⚠️ Completa al menos nombre y precio");
+
+    servicios.push({
+        id: Date.now(),
+        nombre,
+        descripcion,
+        precio,
+        beneficios: beneficios.length ? beneficios : ["Sin especificar"]
+    });
+
+    cargarServicios();
+    cargarServiciosAdmin();
+    document.getElementById('nombre').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('beneficios').value = '';
+    alert("✅ Servicio guardado");
+}
+
+function eliminarServicio(id) {
+    if (confirm("¿Eliminar este servicio?")) {
+        servicios = servicios.filter(i => i.id !== id);
+        cargarServicios();
+        cargarServiciosAdmin();
+    }
+}
+
+window.onload = () => {
+    cargarServicios();
+    actualizarGaleria();
+};
+
+window.onclick = e => {
+    const m = document.getElementById('modalInfo');
+    if (e.target === m) cerrarModal();
+};
+</script>
+
+</body>
+</html>
